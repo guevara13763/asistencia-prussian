@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Asistencia — Prussian Tactical SpA</title>
+<style>
+  :root{
+    --navy:#0f1e33;
+    --navy-2:#16283f;
+    --navy-3:#1e3a5f;
+    --accent:#c9a227;
+    --accent-2:#e0b93a;
+    --text:#1c2733;
+    --muted:#5b6b7c;
+    --bg:#f2f4f7;
+    --card:#ffffff;
+    --border:#dde3ea;
+    --ok:#1f8a4c;
+    --warn:#c98a12;
+    --bad:#c0392b;
+    --info:#2d6cb0;
+    --violet:#7048a8;
+    --gray:#8a94a0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy),var(--navy-3));
+    color:#fff;
+    padding:18px 20px 0 20px;
+  }
+  .header-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-badge{
+    width:40px;height:40px;border-radius:8px;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:var(--navy);font-size:16px;
+    flex-shrink:0;
+  }
+  .brand h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.3px;}
+  .brand p{margin:0;font-size:11.5px;color:#b9c6d6;}
+  .header-meta{font-size:12px;color:#c7d3e0;text-align:right;}
+  nav{display:flex;gap:2px;overflow-x:auto;padding-bottom:0;-webkit-overflow-scrolling:touch;}
+  nav button{
+    background:transparent;
+    border:none;
+    color:#c7d3e0;
+    padding:11px 14px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+    border-bottom:3px solid transparent;
+    border-radius:6px 6px 0 0;
+  }
+  nav button.active{
+    color:#fff;
+    background:var(--bg);
+    border-bottom:3px solid var(--accent);
+  }
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:18px 14px 60px 14px;
+  }
+  .tab{display:none;}
+  .tab.active{display:block;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .card h2{margin:0 0 4px 0;font-size:16px;}
+  .card .sub{color:var(--muted);font-size:12.5px;margin-bottom:14px;}
+  .grid{display:grid;gap:12px;}
+  .grid-2{grid-template-columns:1fr 1fr;}
+  .grid-3{grid-template-columns:1fr 1fr 1fr;}
+  @media (max-width:640px){
+    .grid-2,.grid-3{grid-template-columns:1fr;}
+    .header-meta{display:none;}
+  }
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  input,select,textarea{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fff;
+    color:var(--text);
+  }
+  textarea{resize:vertical;min-height:50px;}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--navy-3);outline-offset:1px;}
+  .field{margin-bottom:10px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    padding:9px 16px;
+    border-radius:7px;
+    border:none;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    background:var(--navy);
+    color:#fff;
+  }
+  .btn:hover{background:var(--navy-3);}
+  .btn-accent{background:var(--accent);color:var(--navy);}
+  .btn-accent:hover{background:var(--accent-2);}
+  .btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy);}
+  .btn-outline:hover{background:#eef1f5;}
+  .btn-danger{background:#fff;color:var(--bad);border:1.5px solid var(--bad);}
+  .btn-danger:hover{background:#fdeceb;}
+  .btn-sm{padding:5px 10px;font-size:12px;border-radius:6px;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:8px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle;}
+  th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;}
+  tr:hover{background:#f8fafc;}
+  .table-wrap{overflow-x:auto;}
+  .badge{
+    display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap;
+  }
+  .badge-activo{background:var(--ok);}
+  .badge-inactivo{background:var(--gray);}
+  .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;}
+  .st-presente{background:var(--ok);}
+  .st-atraso{background:var(--warn);}
+  .st-ausente_injustificada{background:var(--bad);}
+  .st-ausente_justificada{background:#d8a800;}
+  .st-licencia{background:var(--violet);}
+  .st-vacaciones{background:var(--info);}
+  .st-permiso_con_goce{background:#3aa0a0;}
+  .st-permiso_sin_goce{background:#6b8fa8;}
+  .st-libre{background:var(--gray);}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  @media (max-width:700px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat-box{
+    background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+  }
+  .stat-box .num{font-size:22px;font-weight:800;color:var(--navy);}
+  .stat-box .lbl{font-size:11.5px;color:var(--muted);font-weight:600;}
+  .empty{
+    text-align:center;color:var(--muted);padding:26px 10px;font-size:13.5px;
+  }
+  .search{margin-bottom:10px;}
+  .toast{
+    position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+    background:var(--navy);color:#fff;padding:10px 18px;border-radius:8px;
+    font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);
+    z-index:999;opacity:0;pointer-events:none;transition:opacity .25s, bottom .25s;
+  }
+  .toast.show{opacity:1;bottom:26px;}
+  .attend-row{
+    display:grid;
+    grid-template-columns:1.6fr 1fr auto auto 1.4fr auto;
+    gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);
+  }
+  .attend-row:last-child{border-bottom:none;}
+  @media (max-width:900px){
+    .attend-row{grid-template-columns:1fr;}
+  }
+  .worker-name{font-weight:700;font-size:13.5px;}
+  .worker-meta{font-size:11.5px;color:var(--muted);}
+  .badge-done{font-size:11px;font-weight:700;color:var(--ok);}
+  .banner{
+    background:#fff6dd;border:1px solid #e9d38a;color:#7a5b00;
+    padding:10px 14px;border-radius:8px;font-size:12.5px;margin-bottom:14px;
+  }
+  .banner b{font-weight:800;}
+  .footer-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:10px;}
+  @media print{
+    header,nav,.no-print{display:none !important;}
+    body{background:#fff;}
+    main{max-width:100%;padding:0;}
+    .card{border:none;box-shadow:none;padding:0;}
+  }
+  .modal-bg{
+    display:none;position:fixed;inset:0;background:rgba(15,30,51,.55);
+    align-items:center;justify-content:center;z-index:1000;padding:16px;
+  }
+  .modal-bg.show{display:flex;}
+  .modal{
+    background:#fff;border-radius:12px;padding:20px;max-width:460px;width:100%;
+    max-height:88vh;overflow-y:auto;
+  }
+  .modal h3{margin-top:0;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .inline-note{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  body.logged-out header, body.logged-out main{display:none;}
+  #loginScreen{display:none;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy),var(--navy-3));padding:16px;}
+  body.logged-out #loginScreen{display:flex;}
+  .login-box{background:#fff;border-radius:14px;padding:26px 22px;width:100%;max-width:360px;text-align:center;}
+  .login-box h2{margin:6px 0 2px 0;font-size:18px;}
+  .login-box p{margin:0 0 16px 0;color:var(--muted);font-size:12.5px;}
+  .login-box .field{text-align:left;}
+  .login-msg{margin-top:10px;font-size:12.5px;color:var(--bad);min-height:16px;}
+  .btn-link{background:none;border:none;color:var(--info);font-size:12.5px;cursor:pointer;margin-top:10px;text-decoration:underline;}
+</style>
+</head>
+<body class="logged-out">
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="brand-badge" style="margin:0 auto 10px;">PT</div>
+    <h2>Control de Asistencia</h2>
+    <p>Prussian Tactical SpA</p>
+    <form id="loginForm">
+      <div class="field"><label>Correo</label><input type="email" id="loginEmail" required autocomplete="username"></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="loginPass" required autocomplete="current-password"></div>
+      <button type="submit" class="btn btn-accent" style="width:100%;">Ingresar</button>
+      <div id="loginMsg" class="login-msg"></div>
+    </form>
+    <button type="button" class="btn-link" id="btnForgot">Olvidé mi contraseña</button>
+  </div>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-badge">PT</div>
+      <div>
+        <h1>Control de Asistencia</h1>
+        <p>Prussian Tactical SpA — RUT 77.784.908-5</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div id="hoyLabel">—</div>
+      <div id="dotacionLabel">0 trabajadores activos</div>
+    </div>
+  </div>
+  <nav id="navTabs">
+    <button data-tab="dashboard" class="active">Hoy</button>
+    <button data-tab="dotacion">Dotación</button>
+    <button data-tab="asistencia">Registro Diario</button>
+    <button data-tab="reporte">Reporte Mensual</button>
+    <button data-tab="respaldo">Respaldo de Datos</button>
+    <button data-tab="accesos" id="navAccesos" style="display:none;">Accesos</button>
+    <button id="btnLogout" style="margin-left:auto;">Salir</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard" class="tab active">
+    <div id="backupBanner"></div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="card" style="margin-top:16px;">
+      <h2>Registro rápido de hoy</h2>
+      <div class="sub">Marca la asistencia del día para el personal activo. Los ya registrados aparecen con ✔.</div>
+      <div id="quickList"></div>
+    </div>
+  </section>
+
+  <!-- DOTACION -->
+  <section id="tab-dotacion" class="tab">
+    <div class="card">
+      <h2 id="formDotacionTitle">Agregar trabajador</h2>
+      <div class="sub">Registra, edita o desvincula personal. Al desvincular se conserva todo el historial de asistencia.</div>
+      <form id="formDotacion">
+        <input type="hidden" id="wId">
+        <div class="grid grid-2">
+          <div class="field"><label>Nombre completo *</label><input type="text" id="wNombre" required></div>
+          <div class="field"><label>RUT *</label><input type="text" id="wRut" placeholder="12.345.678-9" required></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Cargo *</label>
+            <select id="wCargo" required>
+              <option>Guardia de Seguridad</option>
+              <option>Supervisor</option>
+              <option>Jefe de Turno</option>
+              <option>Nochero</option>
+              <option>Administrativo</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="field"><label>Sitio / Instalación</label><input type="text" id="wSitio" placeholder="Ej: Condominio Espacio Urbano"></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field"><label>Fecha de ingreso *</label><input type="date" id="wIngreso" required></div>
+          <div class="field"><label>Tipo de contrato</label>
+            <select id="wContrato">
+              <option value="fijo">Contrato fijo / indefinido</option>
+              <option value="parttime">Part-time / temporal</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <div class="field"><label>Equipo</label>
+            <select id="wEquipo">
+              <option value="semana">Semana (Lun–Vie)</option>
+              <option value="finde">Fin de Semana (Sáb–Dom)</option>
+              <option value="siempre">Sin rotación (todos los días)</option>
+            </select>
+          </div>
+          <div class="field" id="wGrupoWrap"><label>Grupo rotativo</label>
+            <select id="wGrupo">
+              <option value="A">Grupo A</option>
+              <option value="B">Grupo B</option>
+            </select>
+          </div>
+          <div class="field"><label>Notas de turno (opcional)</label><input type="text" id="wTurno" placeholder="Ej: turno 08:00–20:00"></div>
+        </div>
+        <div class="inline-note" style="margin-bottom:10px;">Cada equipo (Semana o Fin de Semana) tiene 2 grupos de 2 personas: uno de Día y otro de Noche. Ambos grupos se intercambian cada semana. La app calcula automáticamente quién está de Día y quién de Noche según la fecha.</div>
+        <div class="btn-row">
+          <button type="submit" class="btn btn-accent">Guardar trabajador</button>
+          <button type="button" class="btn btn-outline" id="btnCancelEdit" style="display:none;">Cancelar edición</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Configuración de rotación</h2>
+      <div class="sub">Indica una semana (cualquier fecha de esa semana) en la que el <b>Grupo A</b> haya trabajado de <b>Día</b>. Con esa referencia, la app calcula automáticamente los turnos de todas las semanas, pasadas y futuras.</div>
+      <div class="grid grid-2">
+        <div class="field"><label>Fecha de referencia (Grupo A = Día esa semana)</label><input type="date" id="cfgRefFecha"></div>
+        <div class="field" style="display:flex;align-items:flex-end;"><button type="button" class="btn btn-outline" id="btnGuardarConfig" style="width:100%;">Guardar configuración</button></div>
+      </div>
+      <div class="inline-note" id="cfgRefResumen"></div>
+    </div>
+
+    <div class="card">
+      <h2>Dotación actual</h2>
+      <input type="text" class="search" id="buscarDotacion" placeholder="Buscar por nombre, RUT o sitio...">
+      <div class="table-wrap">
+        <table id="tablaDotacion">
+          <thead><tr><th>Nombre</th><th>RUT</th><th>Cargo</th><th>Equipo / Grupo</th><th>Contrato</th><th>Estado</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="dotacionEmpty" class="empty" style="display:none;">Aún no has agregado trabajadores.</div>
+    </div>
+  </section>
+
+  <!-- ASISTENCIA DIARIA -->
+  <section id="tab-asistencia" class="tab">
+    <div class="card">
+      <h2>Registro de asistencia diaria</h2>
+      <div class="sub">Según la rotación, cada día muestra automáticamente a los trabajadores programados (2 de Día y 2 de Noche). Si necesitas cubrir un reemplazo, activa "ver todo el personal".</div>
+      <div class="grid grid-3">
+        <div class="field"><label>Fecha</label><input type="date" id="asisFecha"></div>
+        <div class="field"><label>Buscar trabajador</label><input type="text" id="buscarAsistencia" placeholder="Nombre, RUT o sitio..."></div>
+        <div class="field"><label>&nbsp;</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;color:var(--text);cursor:pointer;">
+            <input type="checkbox" id="chkVerTodos" style="width:auto;"> Ver todo el personal activo (reemplazos)
+          </label>
+        </div>
+      </div>
+      <div id="asistenciaResumenDia" class="inline-note" style="margin-bottom:10px;"></div>
+      <div id="asistenciaList"></div>
+      <div id="asistenciaEmpty" class="empty" style="display:none;">No hay trabajadores programados para la fecha seleccionada.</div>
+      <div class="btn-row">
+        <button class="btn btn-accent" id="btnGuardarAsistencia">Guardar registros del día</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTE MENSUAL -->
+  <section id="tab-reporte" class="tab">
+    <div class="card no-print">
+      <h2>Reporte mensual para remuneraciones</h2>
+      <div class="sub">Genera el resumen de asistencia del mes para entregar al contador.</div>
+      <div class="grid grid-2">
+        <div class="field"><label>Mes</label><input type="month" id="repMes"></div>
+        <div class="field" style="display:flex;align-items:flex-end;gap:8px;">
+          <button class="btn btn-accent" id="btnGenerarReporte" style="width:100%;">Generar reporte</button>
+        </div>
+      </div>
+      <div class="btn-row" id="reporteAcciones" style="display:none;">
+        <button class="btn btn-outline" id="btnExportCSV">Exportar CSV (Excel)</button>
+        <button class="btn btn-outline" id="btnImprimir">Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+    <div class="card" id="reporteResultado" style="display:none;">
+      <h2 id="reporteTitulo">Reporte</h2>
+      <div class="sub">Empresa: Prussian Tactical SpA — RUT 77.784.908-5</div>
+      <div class="table-wrap">
+        <table id="tablaReporte">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="reporteEmptyMsg" class="empty">Selecciona un mes y presiona "Generar reporte".</div>
+  </section>
+
+  <!-- RESPALDO -->
+  <section id="tab-respaldo" class="tab">
+    <div class="card">
+      <h2>Respaldo y transferencia de datos</h2>
+      <div class="sub">
+        Los datos ya se guardan en la nube (Firebase) y se comparten entre todos los accesos autorizados.
+        El respaldo es una <b>copia de seguridad extra</b> en tu computador. También sirve para <b>subir a la nube el historial
+        anterior</b>: carga aquí el archivo .json que descargaste de la versión antigua; los datos se agregan sin borrar lo que ya exista.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-accent" id="btnDescargarRespaldo">⬇ Descargar respaldo (.json)</button>
+        <label class="btn btn-outline" style="cursor:pointer;">
+          ⬆ Cargar respaldo
+          <input type="file" id="inputRespaldo" accept=".json" style="display:none;">
+        </label>
+      </div>
+      <div class="inline-note">El respaldo incluye toda la dotación y todos los registros de asistencia guardados hasta el momento.</div>
+    </div>
+    <div class="card">
+      <h2>Recomendaciones de uso</h2>
+      <div class="sub" style="line-height:1.6;">
+        1. Abre la app desde su dirección web (no con doble clic en el archivo): el inicio de sesión requiere una dirección publicada.<br>
+        2. Cada persona entra con su propio correo y contraseña. Tú, como administrador, puedes habilitar o deshabilitar el acceso del equipo de contabilidad desde la pestaña "Accesos".<br>
+        3. Sin internet la app sigue funcionando: guarda los cambios en el equipo y los sincroniza al volver la conexión.<br>
+        4. En computadores que no sean tuyos o del equipo de contabilidad, usa una ventana privada y presiona "Salir" al terminar.<br>
+        5. Descarga un respaldo al cierre de cada mes como copia adicional.
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESOS (solo administrador) -->
+  <section id="tab-accesos" class="tab">
+    <div class="card">
+      <h2>Accesos al sistema</h2>
+      <div class="sub">Solo el administrador ve esta pestaña. Puedes habilitar o deshabilitar el acceso del equipo de contabilidad en cualquier momento; el bloqueo es inmediato en cuanto su equipo tenga conexión, incluso si dejaron la sesión abierta.</div>
+      <div class="table-wrap">
+        <table id="tablaAccesos">
+          <thead><tr><th>Correo</th><th>Perfil</th><th>Estado</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Crear acceso para el equipo de contabilidad</h2>
+      <div class="sub">Si cambian de equipo contable, deshabilita el acceso anterior y crea uno nuevo aquí. Tú entregas la contraseña temporal; luego pueden cambiarla con "Olvidé mi contraseña".</div>
+      <form id="formAcceso">
+        <div class="grid grid-2">
+          <div class="field"><label>Correo</label><input type="email" id="accEmail" value="contacto@pymelink.cl" required></div>
+          <div class="field"><label>Contraseña temporal (mínimo 6 caracteres)</label><input type="text" id="accPass" required minlength="6" autocomplete="off"></div>
+        </div>
+        <div class="btn-row"><button type="submit" class="btn btn-accent">Crear / habilitar acceso</button></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">Confirmar</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="modalCancel">Cancelar</button>
+      <button class="btn btn-danger" id="modalConfirm">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, collection, onSnapshot, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// ====== CONFIGURACIÓN DE FIREBASE: reemplaza estos valores por los de tu proyecto ======
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCxfYdCKILtz6AVhqxBIxnyTzpXcDzSulY",
+  authDomain: "asistencia-prussian.firebaseapp.com",
+  projectId: "asistencia-prussian",
+  storageBucket: "asistencia-prussian.firebasestorage.app",
+  messagingSenderId: "732597969201",
+  appId: "1:732597969201:web:232852f95c61677dad1010"
+};
+// =========================================================================================
+
+(function(){
+
+// ---------------- STATE ----------------
+var state = {
+  workers: [],
+  attendance: {},
+  config: { rotationRefMonday: "" }
+};
+var dataLoaded = false;
+
+var EQUIPOS = {
+  semana: {label:"Semana (Lun–Vie)", dias:[1,2,3,4,5]},
+  finde: {label:"Fin de Semana (Sáb–Dom)", dias:[0,6]},
+  siempre: {label:"Sin rotación (todos los días)", dias:[0,1,2,3,4,5,6]}
+};
+
+var ESTADOS = {
+  presente: {label:"Presente", cls:"st-presente"},
+  atraso: {label:"Atraso", cls:"st-atraso"},
+  ausente_injustificada: {label:"Ausente injustificada", cls:"st-ausente_injustificada"},
+  ausente_justificada: {label:"Ausente justificada", cls:"st-ausente_justificada"},
+  licencia: {label:"Licencia médica", cls:"st-licencia"},
+  vacaciones: {label:"Vacaciones", cls:"st-vacaciones"},
+  permiso_con_goce: {label:"Permiso c/goce", cls:"st-permiso_con_goce"},
+  permiso_sin_goce: {label:"Permiso s/goce", cls:"st-permiso_sin_goce"},
+  libre: {label:"Libre (sin turno)", cls:"st-libre"}
+};
+
+function uid(prefix){
+  return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+}
+function pad(n){ return n<10? "0"+n : ""+n; }
+function fmtDateHuman(dstr){
+  if(!dstr) return "";
+  var parts = dstr.split("-");
+  var meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  return parseInt(parts[2],10) + " de " + meses[parseInt(parts[1],10)-1] + " de " + parts[0];
+}
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+}
+function escapeHtml(str){
+  if(str===undefined||str===null) return "";
+  return String(str).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+  });
+}
+
+var pendingConfirm = null;
+function askConfirm(title, body, onConfirm){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = body;
+  document.getElementById("modalBg").classList.add("show");
+  pendingConfirm = onConfirm;
+}
+document.getElementById("modalCancel").addEventListener("click", function(){
+  document.getElementById("modalBg").classList.remove("show");
+  pendingConfirm = null;
+});
+document.getElementById("modalConfirm").addEventListener("click", function(){
+  document.getElementById("modalBg").classList.remove("show");
+  if(pendingConfirm) pendingConfirm();
+  pendingConfirm = null;
+});
+
+var dataDirty = false;
+var app = null, auth = null, db = null;
+var currentUser = null, currentPerfil = null;
+var unsubs = [];
+var pendingWrites = 0;
+var dataReady = false;
+var asisDirty = false;
+var pendingLoginMsg = "";
+var perfilesList = [];
+var CONFIGURED = FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf("PEGAR") === -1;
+
+function who(){ return currentUser ? currentUser.email : ""; }
+function esAdmin(){ return !!(currentPerfil && currentPerfil.rol === "admin"); }
+function rolLabel(r){ return r === "admin" ? "Administrador" : "Equipo de contabilidad"; }
+
+function initFirebase(){
+  app = initializeApp(FIREBASE_CONFIG);
+  auth = getAuth(app);
+  try{
+    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+  }catch(e){
+    db = getFirestore(app);
+  }
+}
+
+function renderBackupBanner(){
+  var el = document.getElementById("backupBanner");
+  if(!el) return;
+  var html = "";
+  if(currentUser){
+    html += '<div class="inline-note" style="margin-bottom:6px;">Sesión: <b>' + escapeHtml(currentUser.email) + '</b> · ' + rolLabel(currentPerfil && currentPerfil.rol) + '</div>';
+  }
+  if(!navigator.onLine){
+    html += '<div class="banner"><b>Sin conexión:</b> puedes seguir trabajando. Los cambios se guardan en este equipo y se sincronizan solos cuando vuelva internet.</div>';
+  } else if(pendingWrites > 0){
+    html += '<div class="inline-note" style="margin-bottom:14px;">Sincronizando ' + pendingWrites + ' cambio(s)…</div>';
+  } else {
+    html += '<div class="inline-note" style="margin-bottom:14px;">✔ Todo sincronizado en la nube.</div>';
+  }
+  if(dataReady && !state.config.rotationRefMonday){
+    html += '<div class="banner"><b>Falta configurar la rotación:</b> en la pestaña Dotación guarda la fecha de referencia. Sin ella, los turnos Día/Noche mostrados pueden ser incorrectos.</div>';
+  }
+  el.innerHTML = html;
+}
+
+// ---- Escritura ----
+function track(promise){
+  pendingWrites++;
+  renderBackupBanner();
+  promise.then(function(){
+    pendingWrites--; renderBackupBanner();
+  }).catch(function(err){
+    pendingWrites--; renderBackupBanner();
+    if(err && err.code === "permission-denied"){ handleDbError(err); }
+    else { toast("No se pudo guardar: " + (err && err.message ? err.message : "error")); }
+  });
+}
+function saveWorker(w){
+  if(!w) return;
+  track(setDoc(doc(db, "trabajadores", w.id), Object.assign({}, w, { actualizadoPor: who(), actualizadoEn: serverTimestamp() })));
+}
+function saveDay(fecha){
+  var regs = state.attendance[fecha] || {};
+  track(setDoc(doc(db, "asistencia", fecha), { registros: regs, actualizadoPor: who(), actualizadoEn: serverTimestamp() }, { merge: true }));
+}
+function saveConfig(){
+  track(setDoc(doc(db, "config", "rotacion"), { rotationRefMonday: state.config.rotationRefMonday, actualizadoPor: who(), actualizadoEn: serverTimestamp() }));
+}
+async function importarRespaldo(parsed){
+  try{
+    var ops = [];
+    parsed.workers.forEach(function(w){
+      if(!w.id) w.id = uid("w");
+      ops.push([doc(db, "trabajadores", w.id), Object.assign({}, w, { actualizadoPor: who(), actualizadoEn: serverTimestamp() })]);
+    });
+    Object.keys(parsed.attendance || {}).forEach(function(f){
+      ops.push([doc(db, "asistencia", f), { registros: parsed.attendance[f], actualizadoPor: who(), actualizadoEn: serverTimestamp() }]);
+    });
+    if(parsed.config && parsed.config.rotationRefMonday){
+      ops.push([doc(db, "config", "rotacion"), { rotationRefMonday: parsed.config.rotationRefMonday, actualizadoPor: who(), actualizadoEn: serverTimestamp() }]);
+    }
+    toast("Subiendo respaldo a la nube…");
+    for(var i = 0; i < ops.length; i += 400){
+      var batch = writeBatch(db);
+      ops.slice(i, i + 400).forEach(function(o){ batch.set(o[0], o[1], { merge: true }); });
+      await batch.commit();
+    }
+    toast("Respaldo subido a la nube (" + parsed.workers.length + " trabajadores)");
+  }catch(err){
+    handleDbError(err);
+    toast("No se pudo subir el respaldo: " + (err && err.message ? err.message : "error"));
+  }
+}
+
+// ---- Lectura en tiempo real ----
+function stopListeners(){
+  unsubs.forEach(function(fn){ try{ fn(); }catch(e){} });
+  unsubs = [];
+}
+function handleDbError(err){
+  if(err && err.code === "permission-denied"){
+    pendingLoginMsg = "Tu acceso fue deshabilitado o no tienes permisos.";
+    if(auth) signOut(auth);
+  } else {
+    toast("Problema de conexión con la base de datos");
+  }
+}
+function afterData(){
+  if(!dataReady){
+    dataReady = true;
+    renderAll();
+    renderCfgResumen();
+    return;
+  }
+  renderHeader();
+  renderBackupBanner();
+  var activeTab = document.querySelector(".tab.active");
+  var id = activeTab ? activeTab.id : "";
+  if(id === "tab-dashboard") renderDashboard();
+  if(id === "tab-dotacion"){ renderDotacion(); renderCfgResumen(); }
+  if(id === "tab-asistencia" && !asisDirty) renderAsistencia();
+}
+function startListeners(){
+  stopListeners();
+  var onErr = function(err){ handleDbError(err); };
+  var email = currentUser.email.toLowerCase();
+  unsubs.push(onSnapshot(doc(db, "perfiles", email), function(s){
+    if(!s.exists() && s.metadata.fromCache) return;
+    if(!s.exists() || s.data().activo !== true){
+      pendingLoginMsg = "Tu acceso fue deshabilitado por el administrador.";
+      signOut(auth);
+      return;
+    }
+    currentPerfil = s.data();
+    applyRole();
+    renderBackupBanner();
+  }, onErr));
+  unsubs.push(onSnapshot(collection(db, "trabajadores"), function(snap){
+    state.workers = snap.docs.map(function(d){ var x = d.data(); delete x.actualizadoEn; return x; });
+    afterData();
+  }, onErr));
+  unsubs.push(onSnapshot(collection(db, "asistencia"), function(snap){
+    var att = {};
+    snap.docs.forEach(function(d){ att[d.id] = d.data().registros || {}; });
+    state.attendance = att;
+    afterData();
+  }, onErr));
+  unsubs.push(onSnapshot(doc(db, "config", "rotacion"), function(s){
+    state.config = { rotationRefMonday: (s.exists() && s.data().rotationRefMonday) || "" };
+    afterData();
+  }, onErr));
+  if(esAdmin()){
+    unsubs.push(onSnapshot(collection(db, "perfiles"), function(snap){
+      perfilesList = snap.docs.map(function(d){ return Object.assign({ email: d.id }, d.data()); });
+      var t = document.querySelector(".tab.active");
+      if(t && t.id === "tab-accesos") renderAccesos();
+    }, onErr));
+  }
+}
+function applyRole(){
+  document.getElementById("navAccesos").style.display = esAdmin() ? "" : "none";
+}
+
+// ---- Sesión ----
+function friendlyAuthError(err){
+  var c = err && err.code;
+  if(c === "auth/invalid-credential" || c === "auth/wrong-password" || c === "auth/user-not-found" || c === "auth/invalid-email") return "Correo o contraseña incorrectos.";
+  if(c === "auth/too-many-requests") return "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.";
+  if(c === "auth/network-request-failed") return "Sin conexión. Para iniciar sesión se necesita internet.";
+  return "No se pudo iniciar sesión (" + (c || "error") + ").";
+}
+function startAuth(){
+  var msgEl = document.getElementById("loginMsg");
+  if(!CONFIGURED){
+    msgEl.textContent = "Falta configurar Firebase: pega tu firebaseConfig en el archivo (ver guía de configuración).";
+    return;
+  }
+  initFirebase();
+  onAuthStateChanged(auth, async function(user){
+    stopListeners();
+    if(!user){
+      currentUser = null; currentPerfil = null; dataReady = false; perfilesList = [];
+      state = { workers: [], attendance: {}, config: { rotationRefMonday: "" } };
+      document.body.classList.add("logged-out");
+      msgEl.textContent = pendingLoginMsg;
+      pendingLoginMsg = "";
+      return;
+    }
+    try{
+      var snap = await getDoc(doc(db, "perfiles", user.email.toLowerCase()));
+      if(!snap.exists() || snap.data().activo !== true){
+        pendingLoginMsg = snap.exists() ? "Tu acceso está deshabilitado. Contacta al administrador." : "Tu usuario no tiene un perfil asignado. Contacta al administrador.";
+        await signOut(auth);
+        return;
+      }
+      currentUser = user;
+      currentPerfil = snap.data();
+      msgEl.textContent = "";
+      document.body.classList.remove("logged-out");
+      applyRole();
+      renderBackupBanner();
+      startListeners();
+    }catch(err){
+      pendingLoginMsg = "No se pudo verificar tu acceso. Conéctate a internet e inténtalo de nuevo.";
+      await signOut(auth);
+    }
+  });
+}
+function setupLogin(){
+  document.getElementById("loginForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    if(!CONFIGURED) return;
+    var msgEl = document.getElementById("loginMsg");
+    msgEl.textContent = "";
+    try{
+      await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPass").value);
+      document.getElementById("loginPass").value = "";
+    }catch(err){
+      msgEl.textContent = friendlyAuthError(err);
+    }
+  });
+  document.getElementById("btnForgot").addEventListener("click", async function(){
+    var msgEl = document.getElementById("loginMsg");
+    var email = document.getElementById("loginEmail").value.trim();
+    if(!CONFIGURED) return;
+    if(!email){ msgEl.textContent = "Escribe tu correo arriba y vuelve a presionar."; return; }
+    try{
+      await sendPasswordResetEmail(auth, email);
+      msgEl.style.color = "var(--ok)";
+      msgEl.textContent = "Si el correo está registrado, recibirás un enlace para crear una nueva contraseña.";
+    }catch(err){
+      msgEl.style.color = "var(--bad)";
+      msgEl.textContent = friendlyAuthError(err);
+    }
+  });
+  document.getElementById("btnLogout").addEventListener("click", function(){
+    if(auth) signOut(auth);
+  });
+
+  // ----- Accesos (administrador) -----
+  document.querySelector("#tablaAccesos tbody").addEventListener("click", function(e){
+    var tog = e.target.closest("button[data-toggle]");
+    var rst = e.target.closest("button[data-reset]");
+    if(tog){
+      var email = tog.dataset.toggle;
+      var estabaActivo = tog.dataset.activo === "1";
+      var aplicar = function(){
+        track(setDoc(doc(db, "perfiles", email), { activo: !estabaActivo, actualizadoPor: who(), actualizadoEn: serverTimestamp() }, { merge: true }));
+        toast(estabaActivo ? "Acceso deshabilitado" : "Acceso habilitado");
+      };
+      if(estabaActivo){
+        askConfirm("Deshabilitar acceso", "¿Deshabilitar el acceso de <b>" + escapeHtml(email) + "</b>? Se cerrará su sesión y no podrá ver ni modificar datos hasta que lo vuelvas a habilitar.", aplicar);
+      } else {
+        aplicar();
+      }
+    }
+    if(rst){
+      sendPasswordResetEmail(auth, rst.dataset.reset).then(function(){
+        toast("Enlace de restablecimiento enviado a " + rst.dataset.reset);
+      }).catch(function(err){ toast("No se pudo enviar: " + (err.code || "error")); });
+    }
+  });
+  document.getElementById("formAcceso").addEventListener("submit", function(e){
+    e.preventDefault();
+    crearAcceso(document.getElementById("accEmail").value, document.getElementById("accPass").value);
+  });
+}
+function renderAccesos(){
+  var tb = document.querySelector("#tablaAccesos tbody");
+  var list = perfilesList.slice().sort(function(a, b){
+    if(a.rol !== b.rol) return a.rol === "admin" ? -1 : 1;
+    return a.email.localeCompare(b.email);
+  });
+  if(list.length === 0){
+    tb.innerHTML = '<tr><td colspan="4" class="empty">Sin perfiles registrados.</td></tr>';
+    return;
+  }
+  tb.innerHTML = list.map(function(p){
+    var acciones = "";
+    if(p.rol !== "admin"){
+      acciones =
+        "<button class='btn btn-sm " + (p.activo ? "btn-danger" : "btn-outline") + "' data-toggle='" + escapeHtml(p.email) + "' data-activo='" + (p.activo ? "1" : "0") + "'>" + (p.activo ? "Deshabilitar" : "Habilitar") + "</button> " +
+        "<button class='btn btn-sm btn-outline' data-reset='" + escapeHtml(p.email) + "'>Restablecer contraseña</button>";
+    }
+    return "<tr><td><b>" + escapeHtml(p.email) + "</b></td><td>" + rolLabel(p.rol) + "</td>" +
+      "<td><span class='badge badge-" + (p.activo ? "activo" : "inactivo") + "'>" + (p.activo ? "Habilitado" : "Deshabilitado") + "</span></td>" +
+      "<td style='white-space:nowrap;'>" + acciones + "</td></tr>";
+  }).join("");
+}
+async function crearAcceso(email, pass){
+  email = (email || "").trim().toLowerCase();
+  if(!email || (pass || "").length < 6){ toast("Ingresa un correo y una contraseña de al menos 6 caracteres"); return; }
+  var existente = perfilesList.filter(function(p){ return p.email === email; })[0];
+  if(existente && existente.rol === "admin"){ toast("Ese correo pertenece al administrador"); return; }
+  var sec = null;
+  try{
+    sec = initializeApp(FIREBASE_CONFIG, "sec" + Date.now());
+    var secAuth = getAuth(sec);
+    var msg = "Acceso creado y habilitado";
+    try{
+      await createUserWithEmailAndPassword(secAuth, email, pass);
+      await signOut(secAuth);
+    }catch(err){
+      if(err.code === "auth/email-already-in-use"){
+        msg = "Ese correo ya tenía usuario: se habilitó su perfil (su contraseña no cambió)";
+      } else { throw err; }
+    }
+    await setDoc(doc(db, "perfiles", email), { rol: "contabilidad", activo: true, creadoPor: who(), actualizadoEn: serverTimestamp() }, { merge: true });
+    document.getElementById("accPass").value = "";
+    toast(msg);
+  }catch(err){
+    toast("No se pudo crear el acceso: " + (err.code || err.message || "error"));
+  }finally{
+    if(sec){ try{ deleteApp(sec); }catch(e){} }
+  }
+}
+
+// ---------------- WORKER HELPERS ----------------
+function isActiveOnDate(w, dateStr){
+  if(!w.fechaIngreso) return false;
+  if(dateStr < w.fechaIngreso) return false;
+  if(w.estado === "inactivo" && w.fechaSalida && dateStr > w.fechaSalida) return false;
+  if(w.estado === "inactivo" && !w.fechaSalida) return false;
+  return true;
+}
+function activeWorkersToday(){
+  var t = todayStr();
+  return state.workers.filter(function(w){ return isActiveOnDate(w,t); });
+}
+function getWorker(id){
+  for(var i=0;i<state.workers.length;i++){ if(state.workers[i].id===id) return state.workers[i]; }
+  return null;
+}
+
+// ---------------- ROTACIÓN DE TURNOS ----------------
+function mondayOf(dateStr){
+  var d = new Date(dateStr + "T00:00:00");
+  var day = d.getDay();
+  var diff = (day === 0) ? -6 : (1 - day);
+  d.setDate(d.getDate() + diff);
+  return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+}
+function weeksBetweenMondays(mondayA, mondayB){
+  var a = new Date(mondayA + "T00:00:00");
+  var b = new Date(mondayB + "T00:00:00");
+  var diffDays = Math.round((b - a) / (1000*60*60*24));
+  return Math.round(diffDays / 7);
+}
+function getRefMonday(){
+  return state.config.rotationRefMonday || mondayOf(todayStr());
+}
+function isScheduledDay(w, dateStr){
+  var eq = EQUIPOS[w.equipo] || EQUIPOS.siempre;
+  var dow = new Date(dateStr + "T00:00:00").getDay();
+  return eq.dias.indexOf(dow) !== -1;
+}
+function getTurnoForDate(w, dateStr){
+  if(!w.grupoRotativo || w.equipo === "siempre") return "";
+  var weeks = weeksBetweenMondays(getRefMonday(), mondayOf(dateStr));
+  var parity = ((weeks % 2) + 2) % 2;
+  var aIsDia = parity === 0;
+  if(w.grupoRotativo === "A") return aIsDia ? "Día" : "Noche";
+  return aIsDia ? "Noche" : "Día";
+}
+function scheduledWorkersForDate(dateStr, includeAllActive){
+  return state.workers.filter(function(w){
+    if(!isActiveOnDate(w, dateStr)) return false;
+    if(includeAllActive) return true;
+    return isScheduledDay(w, dateStr);
+  });
+}
+
+// ---------------- TABS ----------------
+document.getElementById("navTabs").addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-tab]");
+  if(!btn) return;
+  document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
+  btn.classList.add("active");
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+  if(btn.dataset.tab === "dashboard") renderDashboard();
+  if(btn.dataset.tab === "dotacion") renderDotacion();
+  if(btn.dataset.tab === "asistencia") renderAsistencia();
+  if(btn.dataset.tab === "accesos") renderAccesos();
+});
+
+// ---------------- HEADER ----------------
+function renderHeader(){
+  document.getElementById("hoyLabel").textContent = "Hoy: " + fmtDateHuman(todayStr());
+  document.getElementById("dotacionLabel").textContent = activeWorkersToday().length + " trabajadores activos";
+}
+
+// ---------------- DASHBOARD ----------------
+function renderDashboard(){
+  renderBackupBanner();
+  var t = todayStr();
+  var scheduled = scheduledWorkersForDate(t, false);
+  var todayRecords = state.attendance[t] || {};
+  var registered = 0, atrasos = 0, ausentes = 0;
+  scheduled.forEach(function(w){
+    var r = todayRecords[w.id];
+    if(r){
+      registered++;
+      if(r.estado === "atraso") atrasos++;
+      if(r.estado === "ausente_injustificada" || r.estado === "ausente_justificada") ausentes++;
+    }
+  });
+  var grid = document.getElementById("statGrid");
+  grid.innerHTML =
+    stat(scheduled.length, "Programados hoy") +
+    stat(registered + "/" + scheduled.length, "Registrados hoy") +
+    stat(atrasos, "Atrasos hoy") +
+    stat(ausentes, "Ausencias hoy");
+
+  var list = document.getElementById("quickList");
+  if(scheduled.length === 0){
+    list.innerHTML = '<div class="empty">No hay trabajadores programados para hoy según la rotación. Revisa la pestaña "Dotación" o el equipo/grupo asignado.</div>';
+    return;
+  }
+  var html = "";
+  scheduled.slice().sort(function(a,b){ return a.nombre.localeCompare(b.nombre); }).forEach(function(w){
+    var r = todayRecords[w.id];
+    var turno = getTurnoForDate(w, t);
+    html += '<div class="attend-row" style="grid-template-columns:1.8fr auto auto auto;">';
+    html += '<div><div class="worker-name">' + escapeHtml(w.nombre) + (turno? ' <span class="pill" style="background:' + (turno==="Día"?"var(--info)":"var(--navy)") + ';">'+turno+'</span>' : '') + '</div><div class="worker-meta">' + escapeHtml(w.cargo) + (w.sitio? " · "+escapeHtml(w.sitio):"") + '</div></div>';
+    if(r){
+      html += '<div class="badge-done">✔ ' + ESTADOS[r.estado].label + '</div><div></div><div></div>';
+    } else {
+      html += '<button class="btn btn-sm btn-outline" data-quick="' + w.id + '" data-estado="presente">Presente</button>';
+      html += '<button class="btn btn-sm btn-outline" data-quick="' + w.id + '" data-estado="atraso">Atraso</button>';
+      html += '<button class="btn btn-sm btn-outline" data-quick="' + w.id + '" data-estado="ausente_injustificada">Ausente</button>';
+    }
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+function stat(num, lbl){
+  return '<div class="stat-box"><div class="num">' + num + '</div><div class="lbl">' + lbl + '</div></div>';
+}
+document.getElementById("quickList").addEventListener("click", function(e){
+  var btn = e.target.closest("button[data-quick]");
+  if(!btn) return;
+  var wid = btn.dataset.quick, estado = btn.dataset.estado;
+  var t = todayStr();
+  if(!state.attendance[t]) state.attendance[t] = {};
+  state.attendance[t][wid] = { estado: estado, horaLlegada:"", minutosAtraso:0, observaciones:"" };
+  saveDay(t);
+  renderDashboard();
+  toast("Registro guardado");
+});
+
+// ---------------- DOTACION ----------------
+var editingId = null;
+document.getElementById("wEquipo").addEventListener("change", function(){
+  document.getElementById("wGrupoWrap").style.display = this.value === "siempre" ? "none" : "block";
+});
+
+document.getElementById("formDotacion").addEventListener("submit", function(e){
+  e.preventDefault();
+  var nombre = document.getElementById("wNombre").value.trim();
+  var rut = document.getElementById("wRut").value.trim();
+  var cargo = document.getElementById("wCargo").value;
+  var sitio = document.getElementById("wSitio").value.trim();
+  var ingreso = document.getElementById("wIngreso").value;
+  var turno = document.getElementById("wTurno").value.trim();
+  var contrato = document.getElementById("wContrato").value;
+  var equipo = document.getElementById("wEquipo").value;
+  var grupo = equipo === "siempre" ? "" : document.getElementById("wGrupo").value;
+  if(!nombre || !rut || !ingreso){ toast("Completa los campos obligatorios (*)"); return; }
+
+  if(editingId){
+    var w = getWorker(editingId);
+    w.nombre = nombre; w.rut = rut; w.cargo = cargo; w.sitio = sitio; w.fechaIngreso = ingreso; w.turno = turno;
+    w.contrato = contrato; w.equipo = equipo; w.grupoRotativo = grupo;
+    toast("Trabajador actualizado");
+  } else {
+    state.workers.push({
+      id: uid("w"), nombre: nombre, rut: rut, cargo: cargo, sitio: sitio,
+      fechaIngreso: ingreso, turno: turno, estado: "activo", fechaSalida: "", motivoSalida: "",
+      contrato: contrato, equipo: equipo, grupoRotativo: grupo
+    });
+    toast("Trabajador agregado a la dotación");
+  }
+  saveWorker(editingId ? getWorker(editingId) : state.workers[state.workers.length - 1]);
+  resetFormDotacion();
+  renderDotacion();
+  renderHeader();
+});
+function resetFormDotacion(){
+  editingId = null;
+  document.getElementById("formDotacion").reset();
+  document.getElementById("wGrupoWrap").style.display = "block";
+  document.getElementById("formDotacionTitle").textContent = "Agregar trabajador";
+  document.getElementById("btnCancelEdit").style.display = "none";
+}
+document.getElementById("btnCancelEdit").addEventListener("click", resetFormDotacion);
+
+// ---------------- CONFIGURACIÓN DE ROTACIÓN ----------------
+function renderCfgResumen(){
+  var el = document.getElementById("cfgRefResumen");
+  if(!state.config.rotationRefMonday){
+    el.textContent = "Aún no hay fecha de referencia guardada. Configúrala para que los turnos Día/Noche sean correctos.";
+    return;
+  }
+  el.textContent = "Semana de referencia actual: lunes " + state.config.rotationRefMonday + " → Grupo A trabaja de DÍA esa semana (y Grupo B de NOCHE).";
+}
+document.getElementById("btnGuardarConfig").addEventListener("click", function(){
+  var v = document.getElementById("cfgRefFecha").value;
+  if(!v){ toast("Selecciona una fecha de referencia"); return; }
+  state.config.rotationRefMonday = mondayOf(v);
+  saveConfig();
+  renderCfgResumen();
+  renderAsistencia();
+  renderDashboard();
+  toast("Configuración de rotación guardada");
+});
+
+document.getElementById("buscarDotacion").addEventListener("input", renderDotacion);
+
+function renderDotacion(){
+  var q = (document.getElementById("buscarDotacion").value || "").toLowerCase();
+  var list = state.workers.filter(function(w){
+    if(!q) return true;
+    return (w.nombre+w.rut+w.sitio+w.cargo).toLowerCase().indexOf(q) !== -1;
+  }).slice().sort(function(a,b){
+    if(a.estado !== b.estado) return a.estado === "activo" ? -1 : 1;
+    return a.nombre.localeCompare(b.nombre);
+  });
+  var tbody = document.querySelector("#tablaDotacion tbody");
+  document.getElementById("dotacionEmpty").style.display = state.workers.length === 0 ? "block" : "none";
+  tbody.innerHTML = list.map(function(w){
+    var eq = EQUIPOS[w.equipo] || EQUIPOS.siempre;
+    var eqGrupo = (w.equipo === "siempre" || !w.equipo)
+      ? eq.label
+      : eq.label + " · Grupo " + (w.grupoRotativo || "—") + " (hoy: " + (getTurnoForDate(w, todayStr()) || "—") + ")";
+    return "<tr>" +
+      "<td><b>" + escapeHtml(w.nombre) + "</b><div class='worker-meta'>" + escapeHtml(w.sitio||"") + "</div></td>" +
+      "<td>" + escapeHtml(w.rut) + "</td>" +
+      "<td>" + escapeHtml(w.cargo) + "</td>" +
+      "<td style='font-size:12px;'>" + escapeHtml(eqGrupo) + "</td>" +
+      "<td>" + (w.contrato === "parttime" ? "Part-time" : "Fijo") + "</td>" +
+      "<td><span class='badge badge-" + w.estado + "'>" + (w.estado==="activo"?"Activo":"Inactivo") + "</span></td>" +
+      "<td style='white-space:nowrap;'>" +
+        "<button class='btn btn-sm btn-outline' data-edit='" + w.id + "'>Editar</button> " +
+        (w.estado === "activo"
+          ? "<button class='btn btn-sm btn-danger' data-deactivate='" + w.id + "'>Desvincular</button>"
+          : "<button class='btn btn-sm btn-outline' data-reactivate='" + w.id + "'>Reactivar</button>") +
+      "</td>" +
+    "</tr>";
+  }).join("");
+}
+document.querySelector("#tablaDotacion tbody").addEventListener("click", function(e){
+  var editBtn = e.target.closest("button[data-edit]");
+  var deactBtn = e.target.closest("button[data-deactivate]");
+  var reactBtn = e.target.closest("button[data-reactivate]");
+  if(editBtn){
+    var w = getWorker(editBtn.dataset.edit);
+    editingId = w.id;
+    document.getElementById("wNombre").value = w.nombre;
+    document.getElementById("wRut").value = w.rut;
+    document.getElementById("wCargo").value = w.cargo;
+    document.getElementById("wSitio").value = w.sitio || "";
+    document.getElementById("wIngreso").value = w.fechaIngreso;
+    document.getElementById("wTurno").value = w.turno || "";
+    document.getElementById("wContrato").value = w.contrato || "fijo";
+    document.getElementById("wEquipo").value = w.equipo || "semana";
+    document.getElementById("wGrupoWrap").style.display = (w.equipo === "siempre") ? "none" : "block";
+    document.getElementById("wGrupo").value = w.grupoRotativo || "A";
+    document.getElementById("formDotacionTitle").textContent = "Editar trabajador";
+    document.getElementById("btnCancelEdit").style.display = "inline-flex";
+    document.getElementById("formDotacion").scrollIntoView({behavior:"smooth"});
+  }
+  if(deactBtn){
+    var wid = deactBtn.dataset.deactivate;
+    var w2 = getWorker(wid);
+    askConfirm("Desvincular trabajador",
+      "¿Confirmas desvincular a <b>" + escapeHtml(w2.nombre) + "</b>? Se conservará todo su historial de asistencia. Indica la fecha de salida:" +
+      "<div class='field' style='margin-top:10px;'><input type='date' id='modalFechaSalida' value='" + todayStr() + "'></div>",
+      function(){
+        var f = document.getElementById("modalFechaSalida").value || todayStr();
+        w2.estado = "inactivo";
+        w2.fechaSalida = f;
+        saveWorker(w2);
+        renderDotacion();
+        renderHeader();
+        toast("Trabajador desvinculado");
+      });
+  }
+  if(reactBtn){
+    var w3 = getWorker(reactBtn.dataset.reactivate);
+    w3.estado = "activo";
+    w3.fechaSalida = "";
+    saveWorker(w3);
+    renderDotacion();
+    renderHeader();
+    toast("Trabajador reactivado");
+  }
+});
+
+// ---------------- ASISTENCIA DIARIA ----------------
+document.getElementById("asisFecha").addEventListener("change", renderAsistencia);
+document.getElementById("buscarAsistencia").addEventListener("input", renderAsistencia);
+document.getElementById("chkVerTodos").addEventListener("change", renderAsistencia);
+
+function renderAsistencia(){
+  var fecha = document.getElementById("asisFecha").value || todayStr();
+  document.getElementById("asisFecha").value = fecha;
+  var q = (document.getElementById("buscarAsistencia").value || "").toLowerCase();
+  var verTodos = document.getElementById("chkVerTodos").checked;
+  var workers = scheduledWorkersForDate(fecha, verTodos);
+  if(q){
+    workers = workers.filter(function(w){ return (w.nombre+w.rut+w.sitio).toLowerCase().indexOf(q)!==-1; });
+  }
+  workers.sort(function(a,b){ return a.nombre.localeCompare(b.nombre); });
+
+  document.getElementById("asistenciaEmpty").style.display = workers.length === 0 ? "block" : "none";
+
+  var dow = new Date(fecha + "T00:00:00").getDay();
+  var esFinde = (dow === 0 || dow === 6);
+  document.getElementById("asistenciaResumenDia").textContent =
+    fmtDateHuman(fecha) + " — " + (esFinde ? "Fin de semana" : "Día de semana") +
+    (verTodos ? " · Mostrando todo el personal activo" : " · Mostrando personal programado según rotación");
+
+  var dayRecords = state.attendance[fecha] || {};
+  var html = "";
+  workers.forEach(function(w){
+    var r = dayRecords[w.id] || { estado:"presente", horaLlegada:"", minutosAtraso:0, observaciones:"" };
+    var turno = getTurnoForDate(w, fecha);
+    html += '<div class="attend-row" data-wid="' + w.id + '">';
+    html += '<div><div class="worker-name">' + escapeHtml(w.nombre) + (turno? ' <span class="pill" style="background:' + (turno==="Día"?"var(--info)":"var(--navy)") + ';">'+turno+'</span>' : '') + '</div><div class="worker-meta">' + escapeHtml(w.cargo) + (w.sitio? " · "+escapeHtml(w.sitio):"") + '</div></div>';
+    html += '<select class="a-estado">';
+    Object.keys(ESTADOS).forEach(function(key){
+      html += '<option value="' + key + '"' + (r.estado===key?" selected":"") + '>' + ESTADOS[key].label + '</option>';
+    });
+    html += '</select>';
+    html += '<input type="text" class="a-hora" placeholder="Hora llegada" value="' + escapeHtml(r.horaLlegada) + '" style="display:' + (r.estado==="atraso"?"block":"none") + ';width:110px;">';
+    html += '<input type="number" min="0" class="a-min" placeholder="Min. atraso" value="' + (r.minutosAtraso||"") + '" style="display:' + (r.estado==="atraso"?"block":"none") + ';width:100px;">';
+    html += '<input type="text" class="a-obs" placeholder="Observaciones (opcional)" value="' + escapeHtml(r.observaciones) + '">';
+    html += '<span class="badge-done" style="min-width:16px;">' + (dayRecords[w.id] ? "✔" : "") + '</span>';
+    html += '</div>';
+  });
+  document.getElementById("asistenciaList").innerHTML = html;
+}
+
+document.getElementById("asistenciaList").addEventListener("change", function(e){
+  if(e.target.classList.contains("a-estado")){
+    var row = e.target.closest(".attend-row");
+    var isAtraso = e.target.value === "atraso";
+    row.querySelector(".a-hora").style.display = isAtraso ? "block" : "none";
+    row.querySelector(".a-min").style.display = isAtraso ? "block" : "none";
+  }
+});
+
+document.getElementById("btnGuardarAsistencia").addEventListener("click", function(){
+  var fecha = document.getElementById("asisFecha").value || todayStr();
+  if(!state.attendance[fecha]) state.attendance[fecha] = {};
+  var rows = document.querySelectorAll("#asistenciaList .attend-row");
+  rows.forEach(function(row){
+    var wid = row.dataset.wid;
+    var estado = row.querySelector(".a-estado").value;
+    var hora = row.querySelector(".a-hora").value.trim();
+    var min = parseInt(row.querySelector(".a-min").value, 10) || 0;
+    var obs = row.querySelector(".a-obs").value.trim();
+    state.attendance[fecha][wid] = { estado: estado, horaLlegada: hora, minutosAtraso: min, observaciones: obs };
+  });
+  saveDay(fecha);
+  renderAsistencia();
+  toast("Asistencia del " + fmtDateHuman(fecha) + " guardada");
+});
+
+// ---------------- REPORTE MENSUAL ----------------
+document.getElementById("btnGenerarReporte").addEventListener("click", generarReporte);
+var lastReport = null;
+
+function generarReporte(){
+  var mes = document.getElementById("repMes").value;
+  if(!mes){ toast("Selecciona un mes"); return; }
+  var year = parseInt(mes.split("-")[0],10);
+  var month = parseInt(mes.split("-")[1],10);
+  var daysInMonth = new Date(year, month, 0).getDate();
+  var monthPrefix = mes;
+
+  var relevantWorkers = state.workers.filter(function(w){
+    for(var d=1; d<=daysInMonth; d++){
+      var ds = mes + "-" + pad(d);
+      if(isActiveOnDate(w, ds)) return true;
+    }
+    var recAny = false;
+    for(var d2=1; d2<=daysInMonth; d2++){
+      var ds2 = mes + "-" + pad(d2);
+      if(state.attendance[ds2] && state.attendance[ds2][w.id]) { recAny = true; break; }
+    }
+    return recAny;
+  });
+
+  var rows = relevantWorkers.map(function(w){
+    var c = {
+      presente:0, atraso:0, ausente_injustificada:0, ausente_justificada:0,
+      licencia:0, vacaciones:0, permiso_con_goce:0, permiso_sin_goce:0, libre:0,
+      minutosAtraso:0, observaciones:[]
+    };
+    for(var d=1; d<=daysInMonth; d++){
+      var ds = mes + "-" + pad(d);
+      var rec = state.attendance[ds] && state.attendance[ds][w.id];
+      if(rec){
+        c[rec.estado] = (c[rec.estado]||0) + 1;
+        if(rec.estado === "atraso") c.minutosAtraso += (rec.minutosAtraso||0);
+        if(rec.observaciones) c.observaciones.push(d + ": " + rec.observaciones);
+      }
+    }
+    var diasTrabajados = c.presente + c.atraso;
+    return {
+      worker: w,
+      diasTrabajados: diasTrabajados,
+      atrasos: c.atraso,
+      minutosAtraso: c.minutosAtraso,
+      ausenteInjust: c.ausente_injustificada,
+      ausenteJust: c.ausente_justificada,
+      licencia: c.licencia,
+      vacaciones: c.vacaciones,
+      permisoConGoce: c.permiso_con_goce,
+      permisoSinGoce: c.permiso_sin_goce,
+      libre: c.libre,
+      observaciones: c.observaciones.join(" | ")
+    };
+  }).sort(function(a,b){ return a.worker.nombre.localeCompare(b.worker.nombre); });
+
+  lastReport = { mes: mes, daysInMonth: daysInMonth, rows: rows };
+
+  var mesLabel = new Date(year, month-1, 1).toLocaleDateString("es-CL", {month:"long", year:"numeric"});
+  document.getElementById("reporteTitulo").textContent = "Reporte de asistencia — " + capitalize(mesLabel);
+
+  var thead = "<tr><th>Trabajador</th><th>RUT</th><th>Cargo</th><th>Equipo</th><th>Días trabajados</th><th>Atrasos</th><th>Min. atraso</th><th>Aus. injustif.</th><th>Aus. justif.</th><th>Licencia</th><th>Vacaciones</th><th>Permiso c/g</th><th>Permiso s/g</th><th>Observaciones</th></tr>";
+  var tbody = rows.length === 0
+    ? '<tr><td colspan="14" class="empty">No hay datos registrados para este mes.</td></tr>'
+    : rows.map(function(r){
+        var eqLbl = (EQUIPOS[r.worker.equipo] || EQUIPOS.siempre).label;
+        return "<tr>" +
+          "<td><b>" + escapeHtml(r.worker.nombre) + "</b></td>" +
+          "<td>" + escapeHtml(r.worker.rut) + "</td>" +
+          "<td>" + escapeHtml(r.worker.cargo) + "</td>" +
+          "<td style='font-size:11.5px;'>" + escapeHtml(eqLbl) + "</td>" +
+          "<td>" + r.diasTrabajados + "</td>" +
+          "<td>" + r.atrasos + "</td>" +
+          "<td>" + r.minutosAtraso + "</td>" +
+          "<td>" + r.ausenteInjust + "</td>" +
+          "<td>" + r.ausenteJust + "</td>" +
+          "<td>" + r.licencia + "</td>" +
+          "<td>" + r.vacaciones + "</td>" +
+          "<td>" + r.permisoConGoce + "</td>" +
+          "<td>" + r.permisoSinGoce + "</td>" +
+          "<td style='max-width:220px;font-size:11.5px;color:var(--muted);'>" + escapeHtml(r.observaciones) + "</td>" +
+        "</tr>";
+      }).join("");
+
+  document.querySelector("#tablaReporte thead").innerHTML = thead;
+  document.querySelector("#tablaReporte tbody").innerHTML = tbody;
+  document.getElementById("reporteResultado").style.display = "block";
+  document.getElementById("reporteAcciones").style.display = "flex";
+  document.getElementById("reporteEmptyMsg").style.display = "none";
+}
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+document.getElementById("btnImprimir").addEventListener("click", function(){ window.print(); });
+
+document.getElementById("btnExportCSV").addEventListener("click", function(){
+  if(!lastReport) return;
+  var headers = ["Trabajador","RUT","Cargo","Equipo","Contrato","Sitio","Dias trabajados","Atrasos","Minutos atraso total","Ausencias injustificadas","Ausencias justificadas","Licencia medica","Vacaciones","Permiso con goce","Permiso sin goce","Observaciones"];
+  var lines = [headers.join(";")];
+  lastReport.rows.forEach(function(r){
+    var eqLbl = (EQUIPOS[r.worker.equipo] || EQUIPOS.siempre).label;
+    var line = [
+      r.worker.nombre, r.worker.rut, r.worker.cargo, eqLbl, (r.worker.contrato==="parttime"?"Part-time":"Fijo"), r.worker.sitio||"",
+      r.diasTrabajados, r.atrasos, r.minutosAtraso, r.ausenteInjust, r.ausenteJust,
+      r.licencia, r.vacaciones, r.permisoConGoce, r.permisoSinGoce,
+      '"' + (r.observaciones||"").replace(/"/g,'""') + '"'
+    ];
+    lines.push(line.join(";"));
+  });
+  var csv = "\uFEFF" + lines.join("\r\n");
+  var blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  downloadBlob(blob, "Reporte_Asistencia_PrussianTactical_" + lastReport.mes + ".csv");
+  toast("CSV exportado");
+});
+
+// ---------------- RESPALDO ----------------
+document.getElementById("btnDescargarRespaldo").addEventListener("click", function(){
+  var payload = JSON.stringify(state, null, 2);
+  var blob = new Blob([payload], {type:"application/json"});
+  var d = new Date();
+  var name = "Respaldo_Asistencia_Prussian_" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "_" + pad(d.getHours()) + pad(d.getMinutes()) + ".json";
+  downloadBlob(blob, name);
+  dataDirty = false;
+  renderBackupBanner();
+  toast("Respaldo descargado");
+});
+
+document.getElementById("inputRespaldo").addEventListener("change", function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      var parsed = JSON.parse(ev.target.result);
+      if(!parsed.workers || !parsed.attendance){ throw new Error("Formato inválido"); }
+      askConfirm("Cargar respaldo",
+        "Se subirán a la nube los datos del archivo <b>" + escapeHtml(file.name) + "</b> (" + parsed.workers.length + " trabajadores). Se agregan o actualizan registros; no se borra nada de lo que ya exista. ¿Continuar?",
+        function(){
+          importarRespaldo(parsed);
+        });
+    }catch(err){
+      toast("El archivo no es un respaldo válido");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+function downloadBlob(blob, filename){
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+// ---------------- INIT ----------------
+function renderAll(){
+  renderHeader();
+  renderDashboard();
+  renderDotacion();
+  renderAsistencia();
+  renderBackupBanner();
+}
+
+document.getElementById("asisFecha").value = todayStr();
+document.getElementById("cfgRefFecha").value = todayStr();
+var now = new Date();
+document.getElementById("repMes").value = now.getFullYear() + "-" + pad(now.getMonth()+1);
+
+var _al = document.getElementById("asistenciaList");
+_al.addEventListener("input", function(){ asisDirty = true; });
+_al.addEventListener("change", function(){ asisDirty = true; });
+document.getElementById("asisFecha").addEventListener("change", function(){ asisDirty = false; });
+document.getElementById("btnGuardarAsistencia").addEventListener("click", function(){ asisDirty = false; });
+window.addEventListener("online", renderBackupBanner);
+window.addEventListener("offline", renderBackupBanner);
+
+setupLogin();
+startAuth();
+
+})();
+</script>
+
+</body>
+</html>
